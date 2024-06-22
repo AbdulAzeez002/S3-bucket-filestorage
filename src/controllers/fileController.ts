@@ -109,7 +109,6 @@ export const addVersion = async (req: Request, res: Response) => {
   } catch (error) {}
 };
 
-
 // export const uploadFile = async (req: Request, res: Response) => {
 //   try {
 //     if (!req.file) {
@@ -144,8 +143,8 @@ const uploadToS3 = async (req: Request) => {
   try {
     const fileContent = req.file?.buffer;
     const params = {
-      Bucket: "abdultest002",
-      Key: req.file?.originalname ?? "ab", // File name you want to save as in S3
+      Bucket: process.env.S3_BUCKET_NAME ?? "",
+      Key: req.file?.originalname ?? "newfile", // File name you want to save as in S3
       Body: fileContent,
     };
 

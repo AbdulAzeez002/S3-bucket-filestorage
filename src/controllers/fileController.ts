@@ -16,31 +16,30 @@ export const addFile = async (req: Request, res: Response) => {
     // Find the document by filename
     let pdfDocument = await PDF.findOne({ fileName });
 
-    if (!pdfDocument) {
-      // If no document exists, create a new one
-      pdfDocument = new PDF({
-        fileName,
-        fileCategory: category,
-        fileLocation: location,
-        versions: [],
-      });
+    if (pdfDocument) {
+      // return res.status(400).json({ error: "File name already exists" });
+      return res.status(500).json({ error: "File name already exists" });
     }
 
+    // If no document exists, create a new one
+    pdfDocument = new PDF({
+      fileName,
+      fileCategory: category,
+      fileLocation: location,
+      versions: [],
+    });
+
     // Determine the new version number
-    const newVersionNumber =
-      pdfDocument.versions.length > 0
-        ? pdfDocument.versions[pdfDocument.versions.length - 1].version + 1
-        : 1;
 
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return res.status(500).json({ error: "something went wrong" });
     }
 
     const data = await uploadToS3(req);
 
     // Create the new version
     const newVersion = {
-      version: newVersionNumber,
+      version: 0,
       data: data,
       createdAt: new Date(),
     };
@@ -53,7 +52,7 @@ export const addFile = async (req: Request, res: Response) => {
 
     res.status(201).json({ status: "File uploaded and stored in database." });
   } catch (error) {
-    res.status(400).json({ error: (error as Error)?.message });
+    res.status(500).json({ error: "something went wrong" });
   }
 };
 
@@ -62,7 +61,7 @@ export const getAllFiles = async (req: Request, res: Response) => {
     const files = await PDF.find({});
     res.json(files);
   } catch (err) {
-    res.status(500).send("Error fetching files: " + (err as Error).message);
+    res.status(500).json({ error: "something went wrong" });
   }
 };
 
@@ -72,7 +71,7 @@ export const getSingleFile = async (req: Request, res: Response) => {
     const file = await PDF.findById(id);
     res.json(file);
   } catch (err) {
-    res.status(500).send("Error fetching files: " + (err as Error).message);
+    res.status(500).json({ error: "something went wrong" });
   }
 };
 
@@ -82,7 +81,7 @@ export const addVersion = async (req: Request, res: Response) => {
     const file = await PDF.findById(id);
 
     if (!file) {
-      return res.status(400).send("No file found with given version");
+      return res.status(400).json({ error: "something went wrong" });
     }
 
     const newVersionNumber =
@@ -106,7 +105,9 @@ export const addVersion = async (req: Request, res: Response) => {
     await file.save();
 
     res.status(200).json("new version added");
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ error: "something went wrong" });
+  }
 };
 
 // export const uploadFile = async (req: Request, res: Response) => {

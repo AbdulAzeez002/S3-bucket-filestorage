@@ -39,7 +39,7 @@ export const addFile = async (req: Request, res: Response) => {
 
     // Create the new version
     const newVersion = {
-      version: 0,
+      version: 1,
       data: data,
       createdAt: new Date(),
     };

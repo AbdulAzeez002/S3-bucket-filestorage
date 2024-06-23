@@ -8,6 +8,7 @@
 ```bash
 git clone https://github.com/AbdulAzeez002/S3-bucket-filestorage.git
 cd S3-bucket-filestorage
+npm install
 
 ```
 
